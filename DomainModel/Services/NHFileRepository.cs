@@ -9,31 +9,35 @@ using System.Threading.Tasks;
 
 namespace DomainModel.Services
 {
+
+
     public class NHFileRepository : IFilesRepository
     {
-        public Files Create()
+        Files IRepository<Files>.Create()
         {
             return new Files() { Id = 0 };
         }
 
-        public bool Delete(int Id)
+        void IRepository<Files>.Update(Files File)
         {
-            var item = Load(Id);
-            if (item == null)
-                return false;
-            using (var db = new StorageContext())
+            using (var session = NHibernateHelper.OpenSession())
             {
-                db.File.Remove(item);
-                db.SaveChanges();
-            }
-            return true;
-        }
+                using (var transaction = session.BeginTransaction())
+                {
+                    try
+                    {
+                        session.Save(File);
 
-        public Files Load(int Id)
-        {
-            using (var db = new StorageContext())
-            {
-                return db.File.FirstOrDefault(o => o.Id == Id);
+                    }
+                    catch (Exception e)
+                    {
+                        //вывод е в лог
+                        transaction.Rollback();
+                        throw;
+                    }
+                    transaction.Commit();
+                }
+
             }
         }
 
