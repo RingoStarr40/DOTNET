@@ -1,0 +1,28 @@
+﻿@model DomainModel.Models.Files
+<tr>
+    <td>
+        @Html.DisplayFor(modelItem => modelItem.Id)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => modelItem.FileName)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => modelItem.Date)
+    </td>
+    <td>
+        @Html.DisplayFor(modelItem => modelItem.Author.Author)
+    </td>
+    <td>
+        @Html.ActionLink("Скачать файл", "GetFile", new {Id = Model.Id })
+    </td>
+
+
+</tr>
+
+
+
+
+
+
+
+

@@ -1,0 +1,40 @@
+﻿@model IEnumerable<DomainModel.Models.Files>
+
+<p>
+
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Id)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FileName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Date)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Author)
+        </th>
+
+    </tr>
+
+@foreach (var item in Model) {
+@Html.Partial("Item", item)
+}
+
+</table>
+
+@{
+    ViewBag.Title = "Upload";
+}
+<h3>Выберите файл для загрузки</h3>
+@using (Html.BeginForm("Upload", "Files", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="file" name="upload" /><br>
+    <input type="submit" value="Загрузить" />
+}
+
+
+

@@ -1,0 +1,12 @@
+﻿@model IEnumerable<DomainModel.Models.Files>
+
+<div id="searchresults">
+    <h3>Все книги автора : @Model.First().FileName</h3>
+    <ul>
+        @foreach (var item in Model)
+        {
+            <li>@item.FileName</li>
+        }
+    </ul>
+</div>
+
