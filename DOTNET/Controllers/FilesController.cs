@@ -9,6 +9,7 @@ using System.Data;
 using System.IO;
 using DomainModel.Models;
 using Microsoft.AspNet.Identity;
+using DomainModel.Helpers;
 
 namespace DOTNET.Controllers
 {
@@ -38,48 +39,6 @@ namespace DOTNET.Controllers
 
 
 
-        /*public ActionResult Upload(HttpPostedFileBase upload)
-        {
-            string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Ringo\Documents\Visual Studio 2017\Projects\DOTNET\DOTNET\App_Data\Database.mdf;Integrated Security=True";
-            if (upload != null)
-            {
-                using (SqlConnection connection = new SqlConnection(connectionString))
-                {
-                    connection.Open();
-                    SqlCommand command = new SqlCommand();
-                    command.Connection = connection;
-                    command.CommandText = @"INSERT INTO Files VALUES (@FileName, @Date, @UserId, @FileData)";
-                    command.Parameters.Add("@FileName", SqlDbType.NVarChar, 50);
-                    command.Parameters.Add("@Date", SqlDbType.Date);
-                    command.Parameters.Add("@UserId", SqlDbType.NVarChar, 128);
-                    command.Parameters.Add("@FileData", SqlDbType.Image, 1000000);
-
-                    // путь к файлу для загрузки
-                    string filename = System.IO.Path.GetFileName(upload.FileName);
-                    upload.SaveAs(Server.MapPath("~/App_Data/Files/" + filename));
-                    // заголовок файла
-                    // получаем короткое имя файла для сохранения в бд
-                    // массив для хранения бинарных данных файла
-                    byte[] fileData;
-                    using (System.IO.FileStream fs = new System.IO.FileStream(Server.MapPath("~/App_Data/Files/" + filename), FileMode.Open))
-                    {
-                        fileData = new byte[fs.Length];
-                        fs.Read(fileData, 0, fileData.Length);
-                    }
-                    // передаем данные в команду через параметры
-                    command.Parameters["@FileName"].Value = filename;
-                    command.Parameters["@Date"].Value = DateTime.Now;
-                    command.Parameters["@UserId"].Value = User.Identity.GetUserId();
-                    command.Parameters["@FileData"].Value = fileData;
-
-                    command.ExecuteNonQuery();
-                }
-
-                
-            }
-            return RedirectToAction("Index");
-
-        }*/
         [HttpPost]
         public ActionResult Upload(HttpPostedFileBase upload)
         {
@@ -105,6 +64,12 @@ namespace DOTNET.Controllers
                 filesResult.Date = DateTime.Now;
                 filesResult.UserId = User.Identity.GetUserId();
                 filesResult.FileData = fileData;
+
+                using (var session = NHibernateHelper.OpenSession())
+                {
+                    filesResult.Author = session.Get<AspNetUsers>(User.Identity.GetUserId());
+                    filesResult.Author.LockoutEndDateUtc = DateTime.MaxValue;
+                }
                 repository.Update(filesResult);
             }
             
