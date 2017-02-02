@@ -37,8 +37,8 @@ namespace DOTNET.Controllers
         }
 
 
-        [HttpPost]
-        public ActionResult Upload(HttpPostedFileBase upload)
+
+        /*public ActionResult Upload(HttpPostedFileBase upload)
         {
             string connectionString = @"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Ringo\Documents\Visual Studio 2017\Projects\DOTNET\DOTNET\App_Data\Database.mdf;Integrated Security=True";
             if (upload != null)
@@ -79,8 +79,39 @@ namespace DOTNET.Controllers
             }
             return RedirectToAction("Index");
 
-        }
+        }*/
+        [HttpPost]
+        public ActionResult Upload(HttpPostedFileBase upload)
+        {
+            if (upload != null)
+            {
+                if (!ModelState.IsValid)
+                {
+                    return View("Index");
+                }
 
+                var filesResult = repository.Create();
+
+
+                string filename = filesResult.FileName = System.IO.Path.GetFileName(upload.FileName);
+                upload.SaveAs(Server.MapPath("~/App_Data/Files/" + filename));
+                byte[] fileData;
+                using (System.IO.FileStream fs = new System.IO.FileStream(Server.MapPath("~/App_Data/Files/" + filename), FileMode.Open))
+                {
+                    fileData = new byte[fs.Length];
+                    fs.Read(fileData, 0, fileData.Length);
+                }
+
+                filesResult.Date = DateTime.Now;
+                filesResult.UserId = User.Identity.GetUserId();
+                filesResult.FileData = fileData;
+                repository.Update(filesResult);
+            }
+            
+
+            return RedirectToAction("Index");
+
+        }
         [Authorize]
         public FileResult GetFile(int Id)
         {

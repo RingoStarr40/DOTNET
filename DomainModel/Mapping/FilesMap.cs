@@ -16,7 +16,7 @@ namespace DomainModel.Mapping
             Map(x => x.FileName);
             Map(x => x.Date);
             References(x => x.Author, "UserId").Cascade.SaveUpdate().Not.LazyLoad();
-            Map(x => x.FileData);
+            Map(x => x.FileData).Length(int.MaxValue);
         }
     }
 }
